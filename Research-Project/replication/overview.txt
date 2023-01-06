@@ -3,3 +3,4 @@ The paper I selected was "Subperfect Game: Profitable Biases of NBA Referees" by
 The summarystats.do replicates Table 2 from the paper, while main_results.do replicates Tables 3, 4, and 5.
 The data used in these two files are minute_data_final.dta and box_playoff_9-16-10.dta.
 The final paper pdf details the findings of the paper.
+The dataset used, minute_data_final.dta, is too large to upload, but can be found at this link https://research.bowdoin.edu/daniel-f-stone/research-2/
