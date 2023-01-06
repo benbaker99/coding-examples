@@ -1,0 +1,1 @@
+This folder contains mutliple data analysis exercises and data cleaning exercises within python.
