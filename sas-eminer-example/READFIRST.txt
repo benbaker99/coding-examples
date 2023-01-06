@@ -1,1 +1,2 @@
 This folder contains examples within SAS E-Miner.
+The examples include association rule mining, decision tree, and predictive analytics (linear regression and logit).
