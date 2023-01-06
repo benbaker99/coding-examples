@@ -1,0 +1,1 @@
+This folder contains examples of Logit regression in Stata, SAS, and Python.
