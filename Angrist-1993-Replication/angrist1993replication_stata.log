@@ -1,0 +1,1045 @@
+---------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  G:\econ_6112\replication_project\part1_2\angrist1993replication_stata.log
+  log type:  text
+ opened on:  27 Dec 2022, 16:55:07
+
+. 
+. /***************************************************************
+> * Load Data
+> ***************************************************************/
+. 
+.         use Angrist1993Replication.dta
+
+.         
+. /*
+> 
+> Replicating all of Table 1 from Angrist (1993)
+> 
+> Based on the note under Table 1, the sample criteria is:
+> 1. Only men
+> 2. Served in the Vietnam Era (8/5/64-5/7/75) or the early AVF (5/8/75-9/7/80)
+> 3. At least 9 years of schooling at entry to service
+> 4. A non-negative increment in schooling since entering the service
+> 5. Restricted to men aged 30-54 years old in 1987
+> 6. 1-15 years of active duty service
+> 
+> Rounding out to 2,388 veterans who met these criteria.
+> 
+> */
+. 
+. *female variable is a dummy variable, 1 for female, 0 for male
+.         drop if female == 1
+(108 observations deleted)
+
+.         
+. *drops if the veteran did not serve in the vietnam era or the early avf era
+.         drop if viet_era == 0 & early_avf_era == 0
+(142 observations deleted)
+
+.         
+. *drops if years of schooling for the veteran at entry of service is less than 9 years
+.         drop if entgrade < 9
+(84 observations deleted)
+
+.         
+. *drops if veteran does not have a non-negative increment in schooling since entering the service
+.         drop if grade_inc < 0
+(32 observations deleted)
+
+.         
+. *drops if the veteran is not aged in the 30-54 range in 1987
+.         drop if age_cat < 32
+(176 observations deleted)
+
+.         drop if age_cat > 52
+(164 observations deleted)
+
+.         
+. *drops if the veteran served less or more than 1-15 years of active duty service
+.         drop if years_serv_cat < 1
+(0 observations deleted)
+
+.         drop if years_serv_cat > 15
+(243 observations deleted)
+
+.         
+. /*
+> 
+> To check the numbers in the table, I will tabulate age, years of service, and branch of service for the top half of the table, 
+> then summarize the data to get the bottom half of the table.
+> 
+> */
+. 
+.         tab age_cat
+
+        Age |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      30-34 |        368       15.41       15.41
+      35-39 |        787       32.96       48.37
+      40-44 |        937       39.24       87.60
+      45-49 |        275       11.52       99.12
+      50-55 |         21        0.88      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+.         tab years_serv_cat
+
+   Years of |
+    Service |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        1-2 |        919       38.48       38.48
+        3-5 |      1,183       49.54       88.02
+       6-10 |        258       10.80       98.83
+      11-15 |         28        1.17      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+.         tab branch
+
+  Branch of |
+    Service |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       Army |      1,170       49.60       49.60
+       Navy |        519       22.00       71.60
+  Air Force |        413       17.51       89.11
+    Marines |        229        9.71       98.81
+Coast Guard |         28        1.19      100.00
+------------+-----------------------------------
+      Total |      2,359      100.00
+
+.         
+.         summarize
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       vetid |      2,388    1691.871    963.2067          1       3337
+      vetwgt |      2,388    2815.011    2561.202   277.5898   19951.11
+      agerec |      2,388    5.494975    .9173968          4          8
+     pser_02 |      2,275           1           0          1          1
+     pser_07 |         37           1           0          1          1
+-------------+---------------------------------------------------------
+     pser_08 |         76           1           0          1          1
+      branch |      2,359    1.920729    1.115124          1          6
+    viet_era |      2,388    .9526801    .2123668          0          1
+early_avf_~a |      2,388    .1582915    .3650905          0          1
+     age_cat |      2,388    39.47487    4.586984         32         52
+-------------+---------------------------------------------------------
+years_serv~t |      2,388    3.768007       2.041          2         13
+      female |      2,388           0           0          0          0
+    entgrade |      2,388    12.54983     1.74771          9         20
+    curgrade |      2,388    14.00209    2.119492          9         20
+   grade_inc |      2,388    1.452261    1.600371          0         11
+-------------+---------------------------------------------------------
+       edinc |      2,388    .6109715    .4876319          0          1
+     drafted |      2,388    .2470687    .4313974          0          1
+     officer |      2,388    .0883585     .283875          0          1
+      curmar |      2,388    .7533501    .4311515          0          1
+      entmar |      2,388     .111809    .3151974          0          1
+-------------+---------------------------------------------------------
+      health |      2,388    .0850084    .2789526          0          1
+    nonwhite |      2,388    .1201843     .325245          0          1
+      any_ed |      2,388    .7747069    .4178627          0          1
+      anyaid |      2,388    .6222781    .4849191          0          1
+      anyfed |      2,388    .0628141    .2426791          0          1
+-------------+---------------------------------------------------------
+      gibill |      2,388    .5456449    .4980165          0          1
+        veap |      2,388    .0196817    .1389333          0          1
+     otherva |      2,388    .0326633    .1777911          0          1
+       anyva |      2,388    .5732831     .494704          0          1
+    fulltime |      2,388    .9053601    .2927782          0          1
+-------------+---------------------------------------------------------
+      earn86 |      2,216    28467.56    19519.91          0     100000
+      mardif |      2,388     .641541    .5206901         -1          1
+          hs |      2,388    .0247069    .1552628          0          1
+   coll_grad |      2,388     .520938     .499666          0          1
+     corresp |      2,388    .0607203    .2388665          0          1
+-------------+---------------------------------------------------------
+    voc_tech |      2,388    .2211055    .4150783          0          1
+  ojt_appren |      2,388    .1796482    .3839746          0          1
+   oth_train |      2,388    .0657454    .2478884          0          1
+
+.         
+. /*
+> 
+> replicating Figures 1 and 2.
+> 
+> */
+.         
+. *Figure 1
+. 
+. *This line of code makes a box plot graph with earned earnings in 1986 on the y-axis and highest grade completed on the x-axis.
+>  It also renames the graph to figure 1, and creates a title for the graph. Lastly, it makes the graph color a white background.
+. 
+.         graph box earn86, over(curgrade) title(Figure 1: Earnings by Highest Grade Completed) graphregion(color(white)) name(fi
+> gure1)
+
+.         
+.         graph export "`output'figure1.png", replace
+file figure1.png saved as PNG format
+
+.         
+. *Figure 2
+. 
+. *This line of code makes a twoway histogram that showcases highest grade completed and grade level at entry. It assigns highest
+>  grade to the color white and entry grade to the color red.
+. 
+.         twoway (histogram entgrade, start(5) width(1.05) color(red) graphregion(color(white))) (histogram curgrade, start(5) wi
+> dth(1.05) fcolor(none) lcolor(black)), legend(order(1 "Grade Completed at Entry" 2 "Highest Grade Completed")) ylabel(0(0.1) 0.
+> 5) title(Figure 2: Grade Completion) name(figure2)
+
+.         
+.         graph export "`output'figure2.png", replace
+file figure2.png saved as PNG format
+
+. 
+. *Displaying the data type for each category
+.         tab age_cat
+
+        Age |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      30-34 |        368       15.41       15.41
+      35-39 |        787       32.96       48.37
+      40-44 |        937       39.24       87.60
+      45-49 |        275       11.52       99.12
+      50-55 |         21        0.88      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+.         tab age_cat, nol
+
+        Age |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         32 |        368       15.41       15.41
+         37 |        787       32.96       48.37
+         42 |        937       39.24       87.60
+         47 |        275       11.52       99.12
+         52 |         21        0.88      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+.         tab years_serv_cat
+
+   Years of |
+    Service |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        1-2 |        919       38.48       38.48
+        3-5 |      1,183       49.54       88.02
+       6-10 |        258       10.80       98.83
+      11-15 |         28        1.17      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+.         tab years_serv_cat, nol
+
+   Years of |
+    Service |
+   Category |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |        919       38.48       38.48
+          4 |      1,183       49.54       88.02
+          8 |        258       10.80       98.83
+         13 |         28        1.17      100.00
+------------+-----------------------------------
+      Total |      2,388      100.00
+
+. 
+. /*
+> 
+> Generating dummy variables for Age Category amd Years of Service Category. In the paper, it says there "are 19 such interaction
+> s" of dummy variables dealing with age category and years of service category
+> 
+> */
+. 
+. *Generating 5 dummy variables for the age category section
+.         gen age_cat_32 = age_cat==32
+
+.         gen age_cat_37 = age_cat==37
+
+.         gen age_cat_42 = age_cat==42
+
+.         gen age_cat_47 = age_cat==47
+
+.         gen age_cat_52 = age_cat==52
+
+.         
+. *Generating 4 dummy variables for the years served category section
+.         gen years_serv_cat_2 = years_serv_cat==2
+
+.         gen years_serv_cat_4 = years_serv_cat==4
+
+.         gen years_serv_cat_8 = years_serv_cat==8
+
+.         gen years_serv_cat_13 = years_serv_cat==13
+
+.         
+. *Generating 20 dummy variables for the interaction of age category and years served categories
+.         gen age_year_32_2 = age_cat_32*years_serv_cat_2
+
+.         gen age_year_32_4 = age_cat_32*years_serv_cat_4
+
+.         gen age_year_32_8 = age_cat_32*years_serv_cat_8
+
+.         gen age_year_32_13 = age_cat_32*years_serv_cat_13
+
+.         gen age_year_37_2 = age_cat_37*years_serv_cat_2
+
+.         gen age_year_37_4 = age_cat_37*years_serv_cat_4
+
+.         gen age_year_37_8 = age_cat_37*years_serv_cat_8
+
+.         gen age_year_37_13 = age_cat_37*years_serv_cat_13
+
+.         gen age_year_42_2 = age_cat_42*years_serv_cat_2
+
+.         gen age_year_42_4 = age_cat_42*years_serv_cat_4
+
+.         gen age_year_42_8 = age_cat_42*years_serv_cat_8
+
+.         gen age_year_42_13 = age_cat_42*years_serv_cat_13
+
+.         gen age_year_47_2 = age_cat_47*years_serv_cat_2
+
+.         gen age_year_47_4 = age_cat_47*years_serv_cat_4
+
+.         gen age_year_47_8 = age_cat_47*years_serv_cat_8
+
+.         gen age_year_47_13 = age_cat_47*years_serv_cat_13
+
+.         gen age_year_52_2 = age_cat_52*years_serv_cat_2
+
+.         gen age_year_52_4 = age_cat_52*years_serv_cat_4
+
+.         gen age_year_52_8 = age_cat_52*years_serv_cat_8
+
+.         gen age_year_52_13 = age_cat_52*years_serv_cat_13
+
+.         
+. /*
+> 
+> age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age
+> _year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 ag
+> e_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 a
+> ge_year_52_8 age_year_52_13
+> 
+> */
+. 
+. *Column 1 Regression
+.         reg curgrade nonwhite viet_era officer drafted curmar anyva age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 year
+> s_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_y
+> ear_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_
+> year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_8 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_32_13 omitted because of collinearity.
+note: age_year_37_4 omitted because of collinearity.
+note: age_year_42_2 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_47_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     2,388
+-------------+----------------------------------   F(25, 2362)     =     47.72
+       Model |  3598.61926        25   143.94477   Prob > F        =    0.0000
+    Residual |  7124.37027     2,362  3.01624482   R-squared       =    0.3356
+-------------+----------------------------------   Adj R-squared   =    0.3286
+       Total |  10722.9895     2,387   4.4922453   Root MSE        =    1.7367
+
+-----------------------------------------------------------------------------------
+         curgrade | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |  -.0571904   .1107887    -0.52   0.606    -.2744436    .1600627
+         viet_era |  -.5368349   .1929429    -2.78   0.005    -.9151899   -.1584798
+          officer |   3.021759   .1303242    23.19   0.000     2.766197     3.27732
+          drafted |  -.1111345   .1022439    -1.09   0.277    -.3116316    .0893626
+           curmar |    .048824   .0839796     0.58   0.561    -.1158574    .2135054
+            anyva |   1.585725   .0735072    21.57   0.000     1.441579     1.72987
+       age_cat_32 |   .4339974   1.591998     0.27   0.785    -2.687862    3.555856
+       age_cat_37 |  -1.221216   .7177003    -1.70   0.089    -2.628604    .1861718
+       age_cat_42 |   .4813998   1.233324     0.39   0.696    -1.937111     2.89991
+       age_cat_47 |   .3268933   1.619739     0.20   0.840    -2.849364     3.50315
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |   .6830886   1.045656     0.65   0.514     -1.36741    2.733587
+ years_serv_cat_4 |   1.904767   1.761591     1.08   0.280    -1.549659    5.359192
+ years_serv_cat_8 |          0  (omitted)
+years_serv_cat_13 |   .5323877   .7594318     0.70   0.483    -.9568344     2.02161
+    age_year_32_2 |  -1.238821   1.025606    -1.21   0.227    -3.250002    .7723602
+    age_year_32_4 |  -2.041118   1.746095    -1.17   0.243    -5.465155    1.382919
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |          0  (omitted)
+    age_year_37_2 |   .9029873   1.424824     0.63   0.526    -1.891048    3.697023
+    age_year_37_4 |          0  (omitted)
+    age_year_37_8 |    2.34882   1.775462     1.32   0.186    -1.132805    5.830445
+   age_year_37_13 |   .9826573   1.742209     0.56   0.573    -2.433761    4.399075
+    age_year_42_2 |          0  (omitted)
+    age_year_42_4 |   -1.53857   1.423564    -1.08   0.280    -4.330135    1.252994
+    age_year_42_8 |   .2347782   1.058275     0.22   0.824    -1.840465    2.310022
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   .0409777   1.071789     0.04   0.970    -2.060766    2.142722
+    age_year_47_4 |  -1.366352   1.774637    -0.77   0.441     -4.84636    2.113656
+    age_year_47_8 |   .6762003   1.114183     0.61   0.544    -1.508678    2.861078
+   age_year_47_13 |          0  (omitted)
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |   .9182909   1.730438     0.53   0.596    -2.475044    4.311626
+   age_year_52_13 |  -.2828659   1.622659    -0.17   0.862    -3.464849    2.899117
+            _cons |   12.61232   1.621019     7.78   0.000     9.433548    15.79108
+-----------------------------------------------------------------------------------
+
+. 
+. *F-test for joint significance of all the dummies in the regression for column 1
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  o.years_serv_cat_8 = 0
+ ( 9)  years_serv_cat_13 = 0
+ (10)  age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  o.age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  o.age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  age_year_37_13 = 0
+ (18)  o.age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  o.age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 5 dropped
+       Constraint 8 dropped
+       Constraint 12 dropped
+       Constraint 13 dropped
+       Constraint 15 dropped
+       Constraint 18 dropped
+       Constraint 21 dropped
+       Constraint 25 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+
+       F( 19,  2362) =    4.30
+            Prob > F =    0.0000
+
+. 
+. *Column 3 Regression
+.         reg grade_inc nonwhite viet_era officer drafted mardif anyva age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 yea
+> rs_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_
+> year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age
+> _year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_8 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_32_13 omitted because of collinearity.
+note: age_year_37_13 omitted because of collinearity.
+note: age_year_42_2 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_47_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     2,388
+-------------+----------------------------------   F(25, 2362)     =     25.09
+       Model |  1282.94208        25  51.3176834   Prob > F        =    0.0000
+    Residual |   4830.6157     2,362  2.04513789   R-squared       =    0.2099
+-------------+----------------------------------   Adj R-squared   =    0.2015
+       Total |  6113.55779     2,387  2.56118885   Root MSE        =    1.4301
+
+-----------------------------------------------------------------------------------
+        grade_inc | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |   .0550221   .0911005     0.60   0.546    -.1236232    .2336673
+         viet_era |   .2019813   .1590466     1.27   0.204    -.1099041    .5138667
+          officer |  -.2241275   .1072031    -2.09   0.037    -.4343495   -.0139055
+          drafted |  -.2648507   .0842418    -3.14   0.002    -.4300462   -.0996551
+           mardif |   .1076272   .0570511     1.89   0.059    -.0042482    .2195025
+            anyva |   1.345581   .0604879    22.25   0.000     1.226966    1.464196
+       age_cat_32 |   .9038097   1.309198     0.69   0.490    -1.663486    3.471106
+       age_cat_37 |  -.7725288    1.30865    -0.59   0.555    -3.338751    1.793694
+       age_cat_42 |    1.08343   1.015471     1.07   0.286     -.907877    3.074737
+       age_cat_47 |  -.8443555   1.333871    -0.63   0.527    -3.460034    1.771323
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |  -.1256683   .8597968    -0.15   0.884    -1.811703    1.560366
+ years_serv_cat_4 |   .8625921   1.449881     0.59   0.552    -1.980579    3.705764
+ years_serv_cat_8 |          0  (omitted)
+years_serv_cat_13 |   1.120313   .6248741     1.79   0.073    -.1050455    2.345672
+    age_year_32_2 |  -.0342726   .8434811    -0.04   0.968    -1.688313    1.619767
+    age_year_32_4 |  -.7972116   1.437089    -0.55   0.579    -3.615299    2.020876
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |          0  (omitted)
+    age_year_37_2 |   1.691205   .8329336     2.03   0.042     .0578478    3.324561
+    age_year_37_4 |   .7763889   1.434389     0.54   0.588    -2.036403     3.58918
+    age_year_37_8 |   2.147289   .8713035     2.46   0.014     .4386896    3.855888
+   age_year_37_13 |          0  (omitted)
+    age_year_42_2 |          0  (omitted)
+    age_year_42_4 |  -.9004479   1.172225    -0.77   0.442    -3.199144    1.398249
+    age_year_42_8 |   .0358871     .87022     0.04   0.967    -1.670587    1.742361
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   1.568287   .8827345     1.78   0.076    -.1627282    3.299302
+    age_year_47_4 |   .5858817    1.46134     0.40   0.689    -2.279761    3.451525
+    age_year_47_8 |   2.244485   .9173679     2.45   0.014      .445555    4.043415
+   age_year_47_13 |          0  (omitted)
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |   .6481902   1.422287     0.46   0.649    -2.140871    3.437251
+   age_year_52_13 |  -.2593416   1.335533    -0.19   0.846     -2.87828    2.359597
+            _cons |  -.4260027   1.330708    -0.32   0.749    -3.035479    2.183473
+-----------------------------------------------------------------------------------
+
+. *F-test for joint significance of all the dummies in the regression for column 3
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  o.years_serv_cat_8 = 0
+ ( 9)  years_serv_cat_13 = 0
+ (10)  age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  o.age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  o.age_year_37_13 = 0
+ (18)  o.age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  o.age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 5 dropped
+       Constraint 8 dropped
+       Constraint 12 dropped
+       Constraint 13 dropped
+       Constraint 17 dropped
+       Constraint 18 dropped
+       Constraint 21 dropped
+       Constraint 25 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+
+       F( 19,  2362) =    2.36
+            Prob > F =    0.0008
+
+.         
+. *Generating dependent variable for columns 4-7
+.         gen logearn86 = log(earn86)
+(424 missing values generated)
+
+.         
+. *Column 4 Regression
+.         reg logearn86 nonwhite viet_era officer drafted curmar curgrade age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 
+> years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 a
+> ge_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 
+> age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_47 omitted because of collinearity.
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_13 omitted because of collinearity.
+note: age_year_32_2 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_37_4 omitted because of collinearity.
+note: age_year_37_13 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+note: age_year_52_8 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     1,964
+-------------+----------------------------------   F(24, 1939)     =     19.00
+       Model |  175.313983        24  7.30474928   Prob > F        =    0.0000
+    Residual |  745.483655     1,939  .384468105   R-squared       =    0.1904
+-------------+----------------------------------   Adj R-squared   =    0.1804
+       Total |  920.797638     1,963  .469076739   Root MSE        =    .62005
+
+-----------------------------------------------------------------------------------
+        logearn86 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |  -.2114861   .0418912    -5.05   0.000    -.2936428   -.1293295
+         viet_era |   .0547843   .0741918     0.74   0.460    -.0907197    .2002883
+          officer |   .2835874   .0596466     4.75   0.000     .1666092    .4005656
+          drafted |   .0510334    .040194     1.27   0.204    -.0277946    .1298613
+           curmar |   .3182963   .0331112     9.61   0.000      .253359    .3832337
+         curgrade |   .0652911    .007582     8.61   0.000     .0504214    .0801608
+       age_cat_32 |  -.0272701   .2571927    -0.11   0.916    -.5316732    .4771331
+       age_cat_37 |   .0378131   .3135855     0.12   0.904    -.5771871    .6528134
+       age_cat_42 |  -.5481408   .4761297    -1.15   0.250    -1.481921    .3856392
+       age_cat_47 |          0  (omitted)
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |  -.0523506   .4824504    -0.11   0.914    -.9985267    .8938255
+ years_serv_cat_4 |    .180174    .255711     0.70   0.481    -.3213233    .6816713
+ years_serv_cat_8 |   .1395973   .4664596     0.30   0.765    -.7752177    1.054412
+years_serv_cat_13 |          0  (omitted)
+    age_year_32_2 |          0  (omitted)
+    age_year_32_4 |  -.0307728   .4053602    -0.08   0.939    -.8257605    .7642149
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |  -.2421315   .5416119    -0.45   0.655    -1.304334    .8200713
+    age_year_37_2 |   .2672609   .4128483     0.65   0.517    -.5424123    1.076934
+    age_year_37_4 |          0  (omitted)
+    age_year_37_8 |   .0014936   .4009427     0.00   0.997    -.7848304    .7878177
+   age_year_37_13 |          0  (omitted)
+    age_year_42_2 |   .9205386   .5464647     1.68   0.092    -.1511815    1.992259
+    age_year_42_4 |   .7587357   .3614334     2.10   0.036     .0498969    1.467574
+    age_year_42_8 |   .6730466    .536968     1.25   0.210    -.3800487    1.726142
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   .3989134   .2760907     1.44   0.149    -.1425524    .9403793
+    age_year_47_4 |   .2711025   .3171325     0.85   0.393    -.3508541    .8930591
+    age_year_47_8 |    .308358   .2559131     1.20   0.228    -.1935357    .8102518
+   age_year_47_13 |   .2343053   .4887432     0.48   0.632     -.724212    1.192823
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |          0  (omitted)
+   age_year_52_13 |   .5086637   .4892901     1.04   0.299    -.4509263    1.468254
+            _cons |   8.725138   .4268308    20.44   0.000     7.888043    9.562234
+-----------------------------------------------------------------------------------
+
+.         
+. *F-test for joint significance of all the dummies in the regression for column 4
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  o.age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  years_serv_cat_8 = 0
+ ( 9)  o.years_serv_cat_13 = 0
+ (10)  o.age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  o.age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  o.age_year_37_13 = 0
+ (18)  age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  o.age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 4 dropped
+       Constraint 5 dropped
+       Constraint 9 dropped
+       Constraint 10 dropped
+       Constraint 12 dropped
+       Constraint 15 dropped
+       Constraint 17 dropped
+       Constraint 21 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+       Constraint 28 dropped
+
+       F( 18,  1939) =    4.44
+            Prob > F =    0.0000
+
+.         
+. *Column 5 Regression
+.         reg logearn86 nonwhite viet_era officer drafted curmar entgrade grade_inc age_cat_32 age_cat_37 age_cat_42 age_cat_47 a
+> ge_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_ye
+> ar_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_
+> year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_47 omitted because of collinearity.
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_13 omitted because of collinearity.
+note: age_year_32_2 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_37_4 omitted because of collinearity.
+note: age_year_37_13 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+note: age_year_52_8 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     1,964
+-------------+----------------------------------   F(25, 1938)     =     19.10
+       Model |  182.012154        25  7.28048617   Prob > F        =    0.0000
+    Residual |  738.785484     1,938   .38121026   R-squared       =    0.1977
+-------------+----------------------------------   Adj R-squared   =    0.1873
+       Total |  920.797638     1,963  .469076739   Root MSE        =    .61742
+
+-----------------------------------------------------------------------------------
+        logearn86 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |  -.2082533   .0417205    -4.99   0.000    -.2900751   -.1264315
+         viet_era |   .0841293   .0742077     1.13   0.257    -.0614061    .2296647
+          officer |   .1798732    .064341     2.80   0.005     .0536884    .3060579
+          drafted |   .0377359   .0401488     0.94   0.347    -.0410036    .1164753
+           curmar |   .3218372   .0329815     9.76   0.000     .2571543    .3865201
+         entgrade |   .0956427   .0104608     9.14   0.000     .0751271    .1161583
+        grade_inc |   .0426679   .0092805     4.60   0.000     .0244671    .0608687
+       age_cat_32 |  -.0062111   .2561499    -0.02   0.981    -.5085695    .4961472
+       age_cat_37 |   .0665416   .3123293     0.21   0.831    -.5459951    .6790783
+       age_cat_42 |  -.4491546   .4746959    -0.95   0.344    -1.380123    .4818137
+       age_cat_47 |          0  (omitted)
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |  -.0061018   .4805287    -0.01   0.990    -.9485093    .9363058
+ years_serv_cat_4 |   .1982861   .2546619     0.78   0.436    -.3011539    .6977262
+ years_serv_cat_8 |   .1699224   .4645354     0.37   0.715    -.7411192    1.080964
+years_serv_cat_13 |          0  (omitted)
+    age_year_32_2 |          0  (omitted)
+    age_year_32_4 |  -.0059259   .4036826    -0.01   0.988    -.7976237     .785772
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |  -.1668509   .5396112    -0.31   0.757     -1.22513    .8914286
+    age_year_37_2 |   .2419606   .4111397     0.59   0.556     -.564362    1.048283
+    age_year_37_4 |          0  (omitted)
+    age_year_37_8 |  -.0075498   .3992462    -0.02   0.985    -.7905469    .7754474
+   age_year_37_13 |          0  (omitted)
+    age_year_42_2 |   .8106004   .5447762     1.49   0.137    -.2578085    1.879009
+    age_year_42_4 |   .6915405   .3602556     1.92   0.055    -.0149888     1.39807
+    age_year_42_8 |   .6028956     .53495     1.13   0.260    -.4462422    1.652033
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   .3726455   .2749899     1.36   0.176    -.1666617    .9119526
+    age_year_47_4 |    .282941   .3157987     0.90   0.370    -.3363998    .9022819
+    age_year_47_8 |    .344337    .254971     1.35   0.177    -.1557094    .8443834
+   age_year_47_13 |   .2398543   .4866698     0.49   0.622    -.7145971    1.194306
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |          0  (omitted)
+   age_year_52_13 |   .5727142   .4874522     1.17   0.240    -.3832716      1.5287
+            _cons |   8.310898   .4363562    19.05   0.000     7.455121    9.166674
+-----------------------------------------------------------------------------------
+
+.         
+. *F-test for joint significance of all the dummies in the regression for column 5
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  o.age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  years_serv_cat_8 = 0
+ ( 9)  o.years_serv_cat_13 = 0
+ (10)  o.age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  o.age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  o.age_year_37_13 = 0
+ (18)  age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  o.age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 4 dropped
+       Constraint 5 dropped
+       Constraint 9 dropped
+       Constraint 10 dropped
+       Constraint 12 dropped
+       Constraint 15 dropped
+       Constraint 17 dropped
+       Constraint 21 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+       Constraint 28 dropped
+
+       F( 18,  1938) =    4.05
+            Prob > F =    0.0000
+
+. 
+. *Column 6 Regression
+.         reg logearn86 nonwhite viet_era officer drafted curmar entgrade anyva age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_c
+> at_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_3
+> 2_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year
+> _47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_47 omitted because of collinearity.
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_13 omitted because of collinearity.
+note: age_year_32_2 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_37_4 omitted because of collinearity.
+note: age_year_37_13 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+note: age_year_52_8 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     1,964
+-------------+----------------------------------   F(25, 1938)     =     18.25
+       Model |  175.460228        25  7.01840911   Prob > F        =    0.0000
+    Residual |   745.33741     1,938  .384591027   R-squared       =    0.1906
+-------------+----------------------------------   Adj R-squared   =    0.1801
+       Total |  920.797638     1,963  .469076739   Root MSE        =    .62015
+
+-----------------------------------------------------------------------------------
+        logearn86 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |  -.2067629   .0419079    -4.93   0.000    -.2889522   -.1245735
+         viet_era |   .0835247   .0748503     1.12   0.265    -.0632709    .2303202
+          officer |   .2074925   .0645471     3.21   0.001     .0809035    .3340816
+          drafted |   .0290365   .0402801     0.72   0.471    -.0499604    .1080333
+           curmar |   .3236406    .033219     9.74   0.000     .2584919    .3887893
+         entgrade |   .0848029    .010374     8.17   0.000     .0644575    .1051483
+            anyva |   .0581118   .0293663     1.98   0.048     .0005189    .1157048
+       age_cat_32 |  -.0090127   .2573733    -0.04   0.972    -.5137703    .4957449
+       age_cat_37 |   .0325463   .3136241     0.10   0.917    -.5825298    .6476225
+       age_cat_42 |  -.4168003   .4767946    -0.87   0.382    -1.351885     .518284
+       age_cat_47 |          0  (omitted)
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |  -.0248507   .4828442    -0.05   0.959    -.9717994    .9220979
+ years_serv_cat_4 |   .2173482    .255762     0.85   0.396    -.2842493    .7189457
+ years_serv_cat_8 |   .1571699   .4666521     0.34   0.736     -.758023    1.072363
+years_serv_cat_13 |          0  (omitted)
+    age_year_32_2 |          0  (omitted)
+    age_year_32_4 |  -.0362261   .4055875    -0.09   0.929    -.8316598    .7592077
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |  -.1383193   .5419897    -0.26   0.799    -1.201264    .9246248
+    age_year_37_2 |   .2753275   .4130772     0.67   0.505    -.5347949     1.08545
+    age_year_37_4 |          0  (omitted)
+    age_year_37_8 |   .0369588   .4009959     0.09   0.927    -.7494699    .8233874
+   age_year_37_13 |          0  (omitted)
+    age_year_42_2 |   .7866062   .5471764     1.44   0.151      -.28651    1.859722
+    age_year_42_4 |   .6328244   .3616952     1.75   0.080    -.0765282    1.342177
+    age_year_42_8 |    .578188   .5372853     1.08   0.282      -.47553    1.631906
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   .3764865   .2766246     1.36   0.174    -.1660265    .9189995
+    age_year_47_4 |   .2434856   .3170522     0.77   0.443    -.3783136    .8652848
+    age_year_47_8 |   .3621586   .2562085     1.41   0.158    -.1403147    .8646319
+   age_year_47_13 |   .2098582   .4887695     0.43   0.668    -.7487111    1.168428
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |          0  (omitted)
+   age_year_52_13 |   .5550724   .4896935     1.13   0.257     -.405309    1.515454
+            _cons |   8.485688   .4369285    19.42   0.000     7.628789    9.342588
+-----------------------------------------------------------------------------------
+
+.         
+. *F-test for joint significance of all the dummies in the regression for column 6
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  o.age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  years_serv_cat_8 = 0
+ ( 9)  o.years_serv_cat_13 = 0
+ (10)  o.age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  o.age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  o.age_year_37_13 = 0
+ (18)  age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  o.age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 4 dropped
+       Constraint 5 dropped
+       Constraint 9 dropped
+       Constraint 10 dropped
+       Constraint 12 dropped
+       Constraint 15 dropped
+       Constraint 17 dropped
+       Constraint 21 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+       Constraint 28 dropped
+
+       F( 18,  1938) =    4.09
+            Prob > F =    0.0000
+
+.         
+. *Column 7 Regression
+.         reg logearn86 nonwhite viet_era officer drafted curmar entgrade anyva grade_inc age_cat_32 age_cat_37 age_cat_42 age_ca
+> t_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_serv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 
+> age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age_year_42_2 age_year_42_4 age_year_42_8 age_year_42_1
+> 3 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 age_year_52_4 age_year_52_8 age_year_52_13
+note: age_cat_47 omitted because of collinearity.
+note: age_cat_52 omitted because of collinearity.
+note: years_serv_cat_13 omitted because of collinearity.
+note: age_year_32_2 omitted because of collinearity.
+note: age_year_32_8 omitted because of collinearity.
+note: age_year_37_4 omitted because of collinearity.
+note: age_year_37_13 omitted because of collinearity.
+note: age_year_42_13 omitted because of collinearity.
+note: age_year_52_2 omitted because of collinearity.
+note: age_year_52_4 omitted because of collinearity.
+note: age_year_52_8 omitted because of collinearity.
+
+      Source |       SS           df       MS      Number of obs   =     1,964
+-------------+----------------------------------   F(26, 1937)     =     18.35
+       Model |  182.012773        26  7.00049127   Prob > F        =    0.0000
+    Residual |  738.784865     1,937  .381406745   R-squared       =    0.1977
+-------------+----------------------------------   Adj R-squared   =    0.1869
+       Total |  920.797638     1,963  .469076739   Root MSE        =    .61758
+
+-----------------------------------------------------------------------------------
+        logearn86 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+         nonwhite |  -.2082292   .0417356    -4.99   0.000    -.2900805   -.1263778
+         viet_era |   .0844043   .0745401     1.13   0.258    -.0617829    .2305915
+          officer |   .1796345   .0646298     2.78   0.005     .0528833    .3063857
+          drafted |    .037703   .0401675     0.94   0.348     -.041073     .116479
+           curmar |   .3219375   .0330837     9.73   0.000      .257054     .386821
+         entgrade |   .0957251   .0106618     8.98   0.000     .0748154    .1166349
+            anyva |   -.001312   .0325697    -0.04   0.968    -.0651873    .0625633
+        grade_inc |   .0428512   .0103384     4.14   0.000     .0225757    .0631268
+       age_cat_32 |  -.0064853   .2563063    -0.03   0.980    -.5091505    .4961799
+       age_cat_37 |   .0666907   .3124317     0.21   0.831    -.5460471    .6794284
+       age_cat_42 |  -.4494684   .4748821    -0.95   0.344    -1.380802    .4818654
+       age_cat_47 |          0  (omitted)
+       age_cat_52 |          0  (omitted)
+ years_serv_cat_2 |  -.0055277   .4808638    -0.01   0.991    -.9485926    .9375372
+ years_serv_cat_4 |   .1983955    .254742     0.78   0.436    -.3012018    .6979929
+ years_serv_cat_8 |   .1702517    .464727     0.37   0.714     -.741166    1.081669
+years_serv_cat_13 |          0  (omitted)
+    age_year_32_2 |          0  (omitted)
+    age_year_32_4 |  -.0054312   .4039733    -0.01   0.989    -.7976994     .786837
+    age_year_32_8 |          0  (omitted)
+   age_year_32_13 |  -.1666061   .5397845    -0.31   0.758    -1.225226    .8920135
+    age_year_37_2 |    .241445   .4114448     0.59   0.557    -.5654763    1.048366
+    age_year_37_4 |          0  (omitted)
+    age_year_37_8 |  -.0079608   .3994794    -0.02   0.984    -.7914157     .775494
+   age_year_37_13 |          0  (omitted)
+    age_year_42_2 |   .8104114   .5449367     1.49   0.137    -.2583128    1.879136
+    age_year_42_4 |   .6919281   .3604769     1.92   0.055    -.0150354    1.398892
+    age_year_42_8 |   .6029549   .5350898     1.13   0.260    -.4464576    1.652367
+   age_year_42_13 |          0  (omitted)
+    age_year_47_2 |   .3720341   .2754791     1.35   0.177    -.1682326    .9123009
+    age_year_47_4 |    .282926   .3158803     0.90   0.371     -.336575    .9024271
+    age_year_47_8 |   .3439887   .2551833     1.35   0.178    -.1564742    .8444515
+   age_year_47_13 |     .23983   .4867956     0.49   0.622    -.7148685    1.194528
+    age_year_52_2 |          0  (omitted)
+    age_year_52_4 |          0  (omitted)
+    age_year_52_8 |          0  (omitted)
+   age_year_52_13 |   .5731192   .4876815     1.18   0.240    -.3833165    1.529555
+            _cons |   8.309895   .4371781    19.01   0.000     7.452506    9.167284
+-----------------------------------------------------------------------------------
+
+.         
+. *F-test for joint significance of all the dummies in the regression for column 7
+.         test age_cat_32 age_cat_37 age_cat_42 age_cat_47 age_cat_52 years_serv_cat_2 years_serv_cat_4 years_serv_cat_8 years_se
+> rv_cat_13 age_year_32_2 age_year_32_4 age_year_32_8 age_year_32_13 age_year_37_2 age_year_37_4 age_year_37_8 age_year_37_13 age
+> _year_42_2 age_year_42_4 age_year_42_8 age_year_42_13 age_year_47_2 age_year_47_4 age_year_47_8 age_year_47_13 age_year_52_2 ag
+> e_year_52_4 age_year_52_8 age_year_52_13
+
+ ( 1)  age_cat_32 = 0
+ ( 2)  age_cat_37 = 0
+ ( 3)  age_cat_42 = 0
+ ( 4)  o.age_cat_47 = 0
+ ( 5)  o.age_cat_52 = 0
+ ( 6)  years_serv_cat_2 = 0
+ ( 7)  years_serv_cat_4 = 0
+ ( 8)  years_serv_cat_8 = 0
+ ( 9)  o.years_serv_cat_13 = 0
+ (10)  o.age_year_32_2 = 0
+ (11)  age_year_32_4 = 0
+ (12)  o.age_year_32_8 = 0
+ (13)  age_year_32_13 = 0
+ (14)  age_year_37_2 = 0
+ (15)  o.age_year_37_4 = 0
+ (16)  age_year_37_8 = 0
+ (17)  o.age_year_37_13 = 0
+ (18)  age_year_42_2 = 0
+ (19)  age_year_42_4 = 0
+ (20)  age_year_42_8 = 0
+ (21)  o.age_year_42_13 = 0
+ (22)  age_year_47_2 = 0
+ (23)  age_year_47_4 = 0
+ (24)  age_year_47_8 = 0
+ (25)  age_year_47_13 = 0
+ (26)  o.age_year_52_2 = 0
+ (27)  o.age_year_52_4 = 0
+ (28)  o.age_year_52_8 = 0
+ (29)  age_year_52_13 = 0
+       Constraint 4 dropped
+       Constraint 5 dropped
+       Constraint 9 dropped
+       Constraint 10 dropped
+       Constraint 12 dropped
+       Constraint 15 dropped
+       Constraint 17 dropped
+       Constraint 21 dropped
+       Constraint 26 dropped
+       Constraint 27 dropped
+       Constraint 28 dropped
+
+       F( 18,  1937) =    4.04
+            Prob > F =    0.0000
+
+. 
+. 
+. //close the log file    
+. log close
+      name:  <unnamed>
+       log:  G:\econ_6112\replication_project\part1_2\angrist1993replication_stata.log
+  log type:  text
+ closed on:  27 Dec 2022, 16:55:30
+---------------------------------------------------------------------------------------------------------------------------------
