@@ -1,2 +1,3 @@
 In this folder is my work on testing different model specifications for the findings in the article.
 The BenBaker_proposal.pdf details the methodology and findings.
+The dataset used, minute_data_final.dta, is too large to upload, but can be found at this link https://research.bowdoin.edu/daniel-f-stone/research-2/
