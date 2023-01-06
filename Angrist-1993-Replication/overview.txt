@@ -1,3 +1,4 @@
 In this folder is my replication of Tables 1 and 2 "The Effect of Veterans Benefits on Education and Earnings" within Stata and SAS.
 Also, included are two plots that are not in the paper.
 I created them to showcase the relationships between multiple variables.
+The dataset used within both sets of codes is the a1993rep.xls located in this folder.
