@@ -1,0 +1,7 @@
+This folder consists of my work on my research project that was completed throughout my Masters degree.
+There was three areas that made up project.
+The first step in the project was to find an economics paper and replicate the main findings of the paper. 
+The paper I selected was "Subperfect Game: Profitable Biases of NBA Referees" by Price, Remer, and Stone.
+The next step was to conduct model specification tests to determine whether the models used by the authors was the correct specifications.
+The last step was an extension of the original paper, where I used the results found in the article to determine whether the referee biases casused inefficiencies in the side-lines betting market.
+Each folder will contain the code, data, and final paper detailing the results I found in each step.
