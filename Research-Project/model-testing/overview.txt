@@ -1,0 +1,2 @@
+In this folder is my work on testing different model specifications for the findings in the article.
+The BenBaker_proposal.pdf details the methodology and findings.
