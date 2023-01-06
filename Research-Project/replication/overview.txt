@@ -1,0 +1,5 @@
+The first step in the project was to find an economics paper and replicate the main findings of the paper.
+The paper I selected was "Subperfect Game: Profitable Biases of NBA Referees" by Price, Remer, and Stone.
+The summarystats.do replicates Table 2 from the paper, while main_results.do replicates Tables 3, 4, and 5.
+The data used in these two files are minute_data_final.dta and box_playoff_9-16-10.dta.
+The final paper pdf details the findings of the paper.
