@@ -1,0 +1,2 @@
+In this folder is my extension looking at whether the biases found in the article influence the side-lines betting market.
+The BenBaker_final_paper.pdf details the methodology and findings.
