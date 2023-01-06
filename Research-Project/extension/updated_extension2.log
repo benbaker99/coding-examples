@@ -1,0 +1,452 @@
+--------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  G:\econ_6901_rm1_2\extension\final_extension\updated_extension2.log
+  log type:  text
+ opened on:  29 Dec 2022, 13:29:53
+
+. 
+. /***************************************************************
+> * Load Data
+> ***************************************************************/
+. 
+. use nba-merged2-half,clear
+
+. 
+. sum htov hpf
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        htov |     14,901    13.49138    3.810707          2         29
+         hpf |     14,901    20.19509    4.294244          7         41
+
+. 
+. 
+. gen homefav = slhome<0
+
+. tab homefav
+
+    homefav |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      4,595       30.81       30.81
+          1 |     10,318       69.19      100.00
+------------+-----------------------------------
+      Total |     14,913      100.00
+
+. 
+. gen homediff = -(hpts-apts)
+(12 missing values generated)
+
+. gen favdiff = (hpts-apts)*homefav + (apts-hpts)*(1-homefav)
+(12 missing values generated)
+
+. replace favdiff = -favdiff
+(14,901 real changes made)
+
+. sum favdiff
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     favdiff |     14,901   -5.612845     12.4428        -61         58
+
+. 
+. gen slfav = slhome*homefav + slaway*(1-homefav)
+(12 missing values generated)
+
+. sum slfav
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       slfav |     14,901   -6.235152    3.666825        -23         18
+
+. 
+. * here arbitrary rule of 1.5 times the predicted impacts on fouls and turnovers
+. * 1.5 can be changed to 1.25 or up to 2?
+. 
+. gen heavyhpf = hpf<20.19-1.5*5.79
+
+. tab heavyhpf
+
+   heavyhpf |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     14,683       98.46       98.46
+          1 |        230        1.54      100.00
+------------+-----------------------------------
+      Total |     14,913      100.00
+
+. gen heavyhtov = htov<13.49-1.5*3.95
+
+. tab heavyhtov
+
+  heavyhtov |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     14,193       95.17       95.17
+          1 |        720        4.83      100.00
+------------+-----------------------------------
+      Total |     14,913      100.00
+
+. 
+. gen slhomeheavyhtov = slhome*heavyhtov
+(12 missing values generated)
+
+. gen slhomeheavyhpf = slhome*heavyhpf
+(12 missing values generated)
+
+. 
+. sum htov hpf homediff slhome
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        htov |     14,901    13.49138    3.810707          2         29
+         hpf |     14,901    20.19509    4.294244          7         41
+    homediff |     14,901   -3.011677    13.31385        -61         58
+      slhome |     14,901   -3.413362    6.376031        -23       17.5
+
+. sum htov hpf homediff slhome if season_year<2008
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        htov |      2,424    13.70421    3.887444          3         29
+         hpf |      2,424    21.31766    4.364595          9         38
+    homediff |      2,424   -3.450495    13.11047        -45         50
+      slhome |      2,424   -3.823639    6.072011        -23         17
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf
+
+      Source |       SS           df       MS      Number of obs   =    14,901
+-------------+----------------------------------   F(3, 14897)     =   1329.22
+       Model |   557703.43         3  185901.143   Prob > F        =    0.0000
+    Residual |  2083448.54    14,897   139.85692   R-squared       =    0.2112
+-------------+----------------------------------   Adj R-squared   =    0.2110
+       Total |  2641151.97    14,900  177.258521   Root MSE        =    11.826
+
+---------------------------------------------------------------------------------
+       homediff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9488099    .015587    60.87   0.000     .9182576    .9793623
+slhomeheavyhtov |    .180763   .0617496     2.93   0.003     .0597262    .3017998
+ slhomeheavyhpf |   .0530441   .0926924     0.57   0.567    -.1286445    .2347326
+          _cons |   .2666599   .1099153     2.43   0.015     .0512123    .4821074
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1, 14897) =   10.79
+            Prob > F =    0.0010
+
+. test slhome+slhomeheavyhtov+slhomeheavyhpf =1
+
+ ( 1)  slhome + slhomeheavyhtov + slhomeheavyhpf = 1
+
+       F(  1, 14897) =    2.82
+            Prob > F =    0.0932
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf if season_year<2009
+
+      Source |       SS           df       MS      Number of obs   =     3,692
+-------------+----------------------------------   F(3, 3688)      =    311.45
+       Model |  129040.221         3  43013.4068   Prob > F        =    0.0000
+    Residual |   509330.75     3,688  138.104867   R-squared       =    0.2021
+-------------+----------------------------------   Adj R-squared   =    0.2015
+       Total |  638370.971     3,691  172.953392   Root MSE        =    11.752
+
+---------------------------------------------------------------------------------
+       homediff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9402308   .0322188    29.18   0.000     .8770623    1.003399
+slhomeheavyhtov |    .314996   .1181789     2.67   0.008     .0832935    .5466985
+ slhomeheavyhpf |  -.1096536   .1956573    -0.56   0.575    -.4932607    .2739535
+          _cons |   .1909913   .2268882     0.84   0.400    -.2538475      .63583
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1,  3688) =    3.44
+            Prob > F =    0.0637
+
+. test slhome+slhomeheavyhtov=1
+
+ ( 1)  slhome + slhomeheavyhtov = 1
+
+       F(  1,  3688) =    4.82
+            Prob > F =    0.0282
+
+. 
+. reg favdiff slfav
+
+      Source |       SS           df       MS      Number of obs   =    14,901
+-------------+----------------------------------   F(1, 14899)     =   1610.74
+       Model |  225064.803         1  225064.803   Prob > F        =    0.0000
+    Residual |   2081800.7    14,899  139.727545   R-squared       =    0.0976
+-------------+----------------------------------   Adj R-squared   =    0.0975
+       Total |   2306865.5    14,900  154.823188   Root MSE        =    11.821
+
+------------------------------------------------------------------------------
+     favdiff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       slfav |   1.059914   .0264093    40.13   0.000     1.008148    1.111679
+       _cons |   .9958777   .1910289     5.21   0.000     .6214375    1.370318
+------------------------------------------------------------------------------
+
+. test slfav=1
+
+ ( 1)  slfav = 1
+
+       F(  1, 14899) =    5.15
+            Prob > F =    0.0233
+
+. test _b[_cons]=0
+
+ ( 1)  _cons = 0
+
+       F(  1, 14899) =   27.18
+            Prob > F =    0.0000
+
+. 
+. test slfav=1
+
+ ( 1)  slfav = 1
+
+       F(  1, 14899) =    5.15
+            Prob > F =    0.0233
+
+. test _b[_cons]=0,accum
+
+ ( 1)  slfav = 1
+ ( 2)  _cons = 0
+
+       F(  2, 14899) =   23.22
+            Prob > F =    0.0000
+
+. 
+. reg favdiff slfav if season_year<2008
+
+      Source |       SS           df       MS      Number of obs   =     2,424
+-------------+----------------------------------   F(1, 2422)      =    289.92
+       Model |  39819.8635         1  39819.8635   Prob > F        =    0.0000
+    Residual |  332651.409     2,422  137.345751   R-squared       =    0.1069
+-------------+----------------------------------   Adj R-squared   =    0.1065
+       Total |  372471.272     2,423  153.723183   Root MSE        =    11.719
+
+------------------------------------------------------------------------------
+     favdiff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       slfav |   1.126336   .0661494    17.03   0.000     .9966211    1.256052
+       _cons |   1.508372   .4745928     3.18   0.002      .577722    2.439022
+------------------------------------------------------------------------------
+
+. test slfav=1
+
+ ( 1)  slfav = 1
+
+       F(  1,  2422) =    3.65
+            Prob > F =    0.0563
+
+. test _b[_cons]=0
+
+ ( 1)  _cons = 0
+
+       F(  1,  2422) =   10.10
+            Prob > F =    0.0015
+
+. 
+. test slfav=1
+
+ ( 1)  slfav = 1
+
+       F(  1,  2422) =    3.65
+            Prob > F =    0.0563
+
+. test _b[_cons]=0,accum
+
+ ( 1)  slfav = 1
+ ( 2)  _cons = 0
+
+       F(  2,  2422) =    6.45
+            Prob > F =    0.0016
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf
+
+      Source |       SS           df       MS      Number of obs   =    14,901
+-------------+----------------------------------   F(3, 14897)     =   1329.22
+       Model |   557703.43         3  185901.143   Prob > F        =    0.0000
+    Residual |  2083448.54    14,897   139.85692   R-squared       =    0.2112
+-------------+----------------------------------   Adj R-squared   =    0.2110
+       Total |  2641151.97    14,900  177.258521   Root MSE        =    11.826
+
+---------------------------------------------------------------------------------
+       homediff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9488099    .015587    60.87   0.000     .9182576    .9793623
+slhomeheavyhtov |    .180763   .0617496     2.93   0.003     .0597262    .3017998
+ slhomeheavyhpf |   .0530441   .0926924     0.57   0.567    -.1286445    .2347326
+          _cons |   .2666599   .1099153     2.43   0.015     .0512123    .4821074
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1, 14897) =   10.79
+            Prob > F =    0.0010
+
+. test slhome+slhomeheavyhtov+slhomeheavyhpf=1
+
+ ( 1)  slhome + slhomeheavyhtov + slhomeheavyhpf = 1
+
+       F(  1, 14897) =    2.82
+            Prob > F =    0.0932
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf if season_year<2008
+
+      Source |       SS           df       MS      Number of obs   =     2,424
+-------------+----------------------------------   F(3, 2420)      =    202.80
+       Model |  83668.7615         3  27889.5872   Prob > F        =    0.0000
+    Residual |  332807.298     2,420  137.523677   R-squared       =    0.2009
+-------------+----------------------------------   Adj R-squared   =    0.1999
+       Total |  416476.059     2,423  171.884465   Root MSE        =    11.727
+
+---------------------------------------------------------------------------------
+       homediff | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9378414   .0403052    23.27   0.000     .8588051    1.016878
+slhomeheavyhtov |   .4209815   .1460709     2.88   0.004     .1345444    .7074185
+ slhomeheavyhpf |   .0219666   .2334384     0.09   0.925    -.4357933    .4797264
+          _cons |   .2267849   .2814997     0.81   0.421    -.3252204    .7787902
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1,  2420) =    2.38
+            Prob > F =    0.1232
+
+. test slhome+slhomeheavyhtov+slhomeheavyhpf=1
+
+ ( 1)  slhome + slhomeheavyhtov + slhomeheavyhpf = 1
+
+       F(  1,  2420) =    2.00
+            Prob > F =    0.1576
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf,r
+
+Linear regression                               Number of obs     =     14,901
+                                                F(3, 14897)       =    1384.09
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2112
+                                                Root MSE          =     11.826
+
+---------------------------------------------------------------------------------
+                |               Robust
+       homediff | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9488099   .0152412    62.25   0.000     .9189353    .9786846
+slhomeheavyhtov |    .180763   .0601717     3.00   0.003     .0628191    .2987069
+ slhomeheavyhpf |   .0530441    .087928     0.60   0.546    -.1193056    .2253937
+          _cons |   .2666599    .110794     2.41   0.016     .0494899    .4838299
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1, 14897) =   11.28
+            Prob > F =    0.0008
+
+. test slhome+slhomeheavyhtov+slhomeheavyhpf=1
+
+ ( 1)  slhome + slhomeheavyhtov + slhomeheavyhpf = 1
+
+       F(  1, 14897) =    3.15
+            Prob > F =    0.0760
+
+. 
+. reg homediff slhome slhomeheavyhtov slhomeheavyhpf if season_year<2008,r
+
+Linear regression                               Number of obs     =      2,424
+                                                F(3, 2420)        =     220.24
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2009
+                                                Root MSE          =     11.727
+
+---------------------------------------------------------------------------------
+                |               Robust
+       homediff | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+         slhome |   .9378414   .0384872    24.37   0.000     .8623702    1.013313
+slhomeheavyhtov |   .4209815   .1430803     2.94   0.003      .140409     .701554
+ slhomeheavyhpf |   .0219666    .168217     0.13   0.896    -.3078976    .3518308
+          _cons |   .2267849   .2828311     0.80   0.423    -.3278312     .781401
+---------------------------------------------------------------------------------
+
+. test slhome=1
+
+ ( 1)  slhome = 1
+
+       F(  1,  2420) =    2.61
+            Prob > F =    0.1064
+
+. test slhome+slhomeheavyhtov+slhomeheavyhpf=1
+
+ ( 1)  slhome + slhomeheavyhtov + slhomeheavyhpf = 1
+
+       F(  1,  2420) =    3.11
+            Prob > F =    0.0777
+
+. 
+. 
+. label var slhome "Home Side-Lines"
+
+. label var homediff "Home Point Differential"
+
+. 
+. * some graphs
+. hist homediff, name(hist_homediff) normal
+(bin=41, start=-61, width=2.902439)
+
+. graph export "hist_homediff.wmf", name(hist_homediff) as(wmf) replace
+file G:\econ_6901_rm1_2\extension\final_extension\hist_homediff.wmf saved as Windows Metafile format
+
+. 
+. hist slhome, name(hist_slhome) normal
+(bin=41, start=-23, width=.98780488)
+
+. graph export "hist_slhome.wmf", name(hist_slhome) as(wmf) replace
+file G:\econ_6901_rm1_2\extension\final_extension\hist_slhome.wmf saved as Windows Metafile format
+
+. 
+. twoway (scatter homediff slhome) (scatter homediff slhome if heavyhtov, color(green))(lfit homediff slhome, lcolor(red)), name
+> (scat_tov) legend(label(1 "Home Point Differential") label(2 "Heavy Turnover Games")) ytitle("Home Point Differential") title(
+> "Figure 1.2")
+
+. 
+. graph export "scat_tov.wmf", name(scat_tov) as(wmf) replace
+file G:\econ_6901_rm1_2\extension\final_extension\scat_tov.wmf saved as Windows Metafile format
+
+. 
+. twoway (scatter homediff slhome) (scatter homediff slhome if heavyhpf, color(green))(lfit homediff slhome, lcolor(red)), name(
+> scat_pf) legend(label(1 "Home Point Differential") label(2 "Heavy Personal Foul Games")) ytitle("Home Point Differential") tit
+> le("Figure 1.1")
+
+. 
+. graph export "scat_pf.wmf", name(scat_pf) as(wmf) replace
+file G:\econ_6901_rm1_2\extension\final_extension\scat_pf.wmf saved as Windows Metafile format
+
+. 
+. 
+. //close the log file    
+. log close
+      name:  <unnamed>
+       log:  G:\econ_6901_rm1_2\extension\final_extension\updated_extension2.log
+  log type:  text
+ closed on:  29 Dec 2022, 13:30:32
+--------------------------------------------------------------------------------------------------------------------------------
