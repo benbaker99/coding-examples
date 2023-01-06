@@ -1,0 +1,312 @@
+------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  G:\econ_6901_rm1\replication\sub-perfect game (1)\sub-perfect gam
+> e\replication_data_code\summarystats.log
+  log type:  text
+ opened on:   5 Apr 2022, 23:59:24
+
+. ssc install estout, replace
+checking estout consistency and verifying not already installed...
+installing into C:\Users\u90_uncc\ado\plus\...
+installation complete.
+
+. 
+. /***************************************************************
+> * Load Data
+> ***************************************************************/
+. 
+. use "`path'\minute_data_final.dta", clear
+
+. 
+. label variable travel "Travel"
+
+. label variable threesec "Three Seconds"
+
+. label variable ofoul "Offensive Foul"
+
+. label variable ogt "Offensive Goal-Tend"
+
+. label variable badpass "Bad Pass"
+
+. label variable lostball "Lost Ball"
+
+. label variable sclock "Shot Clock"
+
+. label variable fpers "Personal Foul"
+
+. label variable floose "Loose Ball Foul"
+
+. label variable finb "Inbounds Foul"
+
+. label variable fclear "Clearing Foul"
+
+. label variable faway "Away From Ball Foul"
+
+. label variable fshoot "Nonflagrant Foul"
+
+. label variable fflag "Flagrant Foul"
+
+. 
+. drop if score==.
+(1,066 observations deleted)
+
+. 
+. drop if minu <3
+(42,740 observations deleted)
+
+. 
+. ****minimize size of data set so can have room for fe poisson regression
+. quietly xi: reg tod homeg ha attend sd1 sd2 sd3 sd4 i.quarter, robust cluste
+> r(date)
+
+. keep if e(sample)
+(8,280 observations deleted)
+
+. 
+. ***Table 2: summary stats
+. bysort homeg: eststo: estpost sum travel threesec ofoul ogt badpass lostball
+>  sclock fpers floose finb fclear faway fshoot fflag
+
+------------------------------------------------------------------------------
+-> 0
+
+             |  e(count)   e(sum_w)    e(mean)     e(Var)      e(sd) 
+-------------+-------------------------------------------------------
+      travel |    316440     316440    .024131   .0239153   .1546457 
+    threesec |    316440     316440   .0066047   .0065864   .0811567 
+       ofoul |    316440     316440    .045086   .0444944   .2109369 
+         ogt |    316440     316440   .0011535   .0011585    .034036 
+     badpass |    316440     316440   .1260839   .1224675   .3499536 
+    lostball |    316440     316440    .063497   .0628657   .2507303 
+      sclock |    316440     316440   .0057104   .0056968    .075477 
+       fpers |    316440     316440   .1555935   .1542073   .3926924 
+      floose |    316440     316440   .0283276   .0282016   .1679332 
+        finb |    316440     316440   .0002497   .0002496   .0157984 
+      fclear |    316440     316440    .000651   .0006506   .0255063 
+       faway |    316440     316440   .0003824   .0003822   .0195508 
+      fshoot |    316440     316440   .2167109   .1958634   .4425646 
+       fflag |    316440     316440   .0010429   .0010481   .0323742 
+
+             |    e(min)     e(max)     e(sum) 
+-------------+---------------------------------
+      travel |         0          2       7636 
+    threesec |         0          2       2090 
+       ofoul |         0          3      14267 
+         ogt |         0          2        365 
+     badpass |         0          3      39898 
+    lostball |         0          3      20093 
+      sclock |         0          2       1807 
+       fpers |         0          4      49236 
+      floose |         0          3       8964 
+        finb |         0          1         79 
+      fclear |         0          1        206 
+       faway |         0          1        121 
+      fshoot |         0          3      68576 
+       fflag |         0          2        330 
+(est1 stored)
+
+------------------------------------------------------------------------------
+-> 1
+
+             |  e(count)   e(sum_w)    e(mean)     e(Var)      e(sd) 
+-------------+-------------------------------------------------------
+      travel |    316440     316440    .020225   .0201257   .1418651 
+    threesec |    316440     316440   .0073252   .0073032   .0854588 
+       ofoul |    316440     316440   .0415877   .0410781   .2026773 
+         ogt |    316440     316440   .0010934   .0010985   .0331443 
+     badpass |    316440     316440    .128473   .1245013   .3528474 
+    lostball |    316440     316440   .0603179   .0596694   .2442731 
+      sclock |    316440     316440   .0051605   .0051592   .0718276 
+       fpers |    316440     316440   .1556282   .1545536    .393133 
+      floose |    316440     316440   .0275028   .0274291   .1656174 
+        finb |    316440     316440   .0002117   .0002117   .0145494 
+      fclear |    316440     316440   .0005309   .0005306   .0230353 
+       faway |    316440     316440   .0003982   .0004043   .0201083 
+      fshoot |    316440     316440   .2058495   .1873036   .4327859 
+       fflag |    316440     316440   .0008596   .0008651   .0294134 
+
+             |    e(min)     e(max)     e(sum) 
+-------------+---------------------------------
+      travel |         0          2       6400 
+    threesec |         0          2       2318 
+       ofoul |         0          2      13160 
+         ogt |         0          2        346 
+     badpass |         0          3      40654 
+    lostball |         0          3      19087 
+      sclock |         0          2       1633 
+       fpers |         0          4      49247 
+      floose |         0          3       8703 
+        finb |         0          1         67 
+      fclear |         0          1        168 
+       faway |         0          2        126 
+      fshoot |         0          4      65139 
+       fflag |         0          2        272 
+(est2 stored)
+
+. 
+. eststo hadiff1: quietly estpost ttest travel, by(homeg) unequal
+
+. eststo hadiff2: quietly estpost ttest threesec, by(homeg) unequal
+
+. eststo hadiff3: quietly estpost ttest ofoul, by(homeg) unequal
+
+. eststo hadiff4: quietly estpost ttest ogt, by(homeg) unequal
+
+. eststo hadiff5: quietly estpost ttest badpass, by(homeg) unequal
+
+. eststo hadiff6: quietly estpost ttest lostball, by(homeg) unequal
+
+. eststo hadiff7: quietly estpost ttest sclock, by(homeg) unequal
+
+. eststo hadiff8: quietly estpost ttest fpers, by(homeg) unequal
+
+. eststo hadiff9: quietly estpost ttest floose, by(homeg) unequal
+
+. eststo hadiff10: quietly estpost ttest finb, by(homeg) unequal
+
+. eststo hadiff11: quietly estpost ttest fclear, by(homeg) unequal
+
+. eststo hadiff12: quietly estpost ttest fawa, by(homeg) unequal
+
+. eststo hadiff13: quietly estpost ttest fshoot, by(homeg) unequal
+
+. eststo hadiff14: quietly estpost ttest fflag, by(homeg) unequal
+
+. 
+. gen winning = 0
+
+. replace winning = 1 if sd > 0
+(292,234 real changes made)
+
+. 
+. bysort winning: eststo: estpost sum travel threesec ofoul ogt badpass lostba
+> ll sclock fpers floose finb fclear faway fshoot fflag
+
+------------------------------------------------------------------------------
+-> 0
+
+             |  e(count)   e(sum_w)    e(mean)     e(Var)      e(sd) 
+-------------+-------------------------------------------------------
+      travel |    340646     340646   .0210042   .0208508    .144398 
+    threesec |    340646     340646   .0059446   .0059269   .0769862 
+       ofoul |    340646     340646   .0417765   .0413876   .2034394 
+         ogt |    340646     340646   .0011449   .0011553     .03399 
+     badpass |    340646     340646   .1242169   .1203889   .3469711 
+    lostball |    340646     340646   .0623668   .0616185   .2482306 
+      sclock |    340646     340646   .0052107   .0052012   .0721191 
+       fpers |    340646     340646   .1476313   .1469495     .38334 
+      floose |    340646     340646   .0262765   .0261263   .1616364 
+        finb |    340646     340646   .0002084   .0002084   .0144355 
+      fclear |    340646     340646   .0005225   .0005223   .0228531 
+       faway |    340646     340646   .0003405   .0003404   .0184503 
+      fshoot |    340646     340646   .1980737    .180676     .42506 
+       fflag |    340646     340646   .0011038   .0011084   .0332933 
+
+             |    e(min)     e(max)     e(sum) 
+-------------+---------------------------------
+      travel |         0          2       7155 
+    threesec |         0          2       2025 
+       ofoul |         0          2      14231 
+         ogt |         0          2        390 
+     badpass |         0          3      42314 
+    lostball |         0          3      21245 
+      sclock |         0          2       1775 
+       fpers |         0          4      50290 
+      floose |         0          2       8951 
+        finb |         0          1         71 
+      fclear |         0          1        178 
+       faway |         0          1        116 
+      fshoot |         0          3      67473 
+       fflag |         0          2        376 
+(est17 stored)
+
+------------------------------------------------------------------------------
+-> 1
+
+             |  e(count)   e(sum_w)    e(mean)     e(Var)      e(sd) 
+-------------+-------------------------------------------------------
+      travel |    292234     292234   .0235462   .0233888    .152934 
+    threesec |    292234     292234   .0081544    .008129   .0901611 
+       ofoul |    292234     292234   .0451556    .044417   .2107535 
+         ogt |    292234     292234   .0010984   .0010972   .0331245 
+     badpass |    292234     292234   .1308472   .1270721   .3564718 
+    lostball |    292234     292234   .0613721   .0608634   .2467051 
+      sclock |    292234     292234   .0056975   .0056924   .0754481 
+       fpers |    292234     292234   .1649124   .1628816   .4035859 
+      floose |    292234     292234   .0298254   .0297778   .1725623 
+        finb |    292234     292234   .0002566   .0002566   .0160181 
+      fclear |    292234     292234   .0006707   .0006702   .0258891 
+       faway |    292234     292234   .0004483   .0004549   .0213287 
+      fshoot |    292234     292234   .2266745   .2039216   .4515768 
+       fflag |    292234     292234   .0007734   .0007796   .0279213 
+
+             |    e(min)     e(max)     e(sum) 
+-------------+---------------------------------
+      travel |         0          2       6881 
+    threesec |         0          2       2383 
+       ofoul |         0          3      13196 
+         ogt |         0          1        321 
+     badpass |         0          3      38238 
+    lostball |         0          3      17935 
+      sclock |         0          2       1665 
+       fpers |         0          4      48193 
+      floose |         0          3       8716 
+        finb |         0          1         75 
+      fclear |         0          1        196 
+       faway |         0          2        131 
+      fshoot |         0          4      66242 
+       fflag |         0          2        226 
+(est18 stored)
+
+. 
+. eststo lwdiff1: quietly estpost ttest travel, by(winning) unequal 
+
+. eststo lwdiff2: quietly estpost ttest threesec, by(winning) unequal
+
+. eststo lwdiff3: quietly estpost ttest ofoul, by(winning) unequal
+
+. eststo lwdiff4: quietly estpost ttest ogt, by(winning) unequal
+
+. eststo lwdiff5: quietly estpost ttest badpass, by(winning) unequal
+
+. eststo lwdiff6: quietly estpost ttest lostball, by(winning) unequal
+
+. eststo lwdiff7: quietly estpost ttest sclock, by(winning) unequal
+
+. eststo lwdiff8: quietly estpost ttest fpers, by(winning) unequal
+
+. eststo lwdiff9: quietly estpost ttest floose, by(winning) unequal
+
+. eststo lwdiff10: quietly estpost ttest finb, by(winning) unequal
+
+. eststo lwdiff11: quietly estpost ttest fclear, by(winning) unequal
+
+. eststo lwdiff12: quietly estpost ttest fawa, by(winning) unequal
+
+. eststo lwdiff13: quietly estpost ttest fshoot, by(winning) unequal
+
+. eststo lwdiff14: quietly estpost ttest fflag, by(winning) unequal
+
+. 
+. esttab est* using "summarystats.csv", csv label noobs title("Table II. Minut
+> e-Level Summary Statistics") mtitle("Away" "Home" "Losing/Tied" "Winning") c
+> ells((mean(fmt(4)) sd(par fmt(3)))) nonumbers replace
+(note: file summarystats.csv not found)
+(output written to summarystats.csv)
+
+. 
+. esttab hadiff* lwdiff* using "diff.csv", csv star(* 0.1 ** 0.05 *** 0.01) la
+> bel noobs nonumbers replace
+(note: file diff.csv not found)
+(output written to diff.csv)
+
+. 
+. 
+. //close the log file    
+. log close
+      name:  <unnamed>
+       log:  G:\econ_6901_rm1\replication\sub-perfect game (1)\sub-perfect gam
+> e\replication_data_code\summarystats.log
+  log type:  text
+ closed on:   6 Apr 2022, 00:00:08
+------------------------------------------------------------------------------
