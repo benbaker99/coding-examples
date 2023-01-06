@@ -1,0 +1,2 @@
+This folder contains a regression example conducted in SAS and Python.
+I display being able to create dummy variables, removing outliers, splitting data into training and test datasets, and performing linear regression.
