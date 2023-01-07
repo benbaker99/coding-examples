@@ -1,0 +1,770 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  G:\econ_6218_fore\ps3\economic_forecasting_ex1.log
+  log type:  text
+ opened on:   7 Jan 2023, 00:02:11
+
+. 
+. /***************************************************************
+> * Load Data
+> ***************************************************************/
+. 
+. *Q1
+. //Import excel file
+. import excel using "`path'\canemp.xlsx", first cellrange(A1:A137) clear
+(1 var, 136 obs)
+
+. 
+. ssc install freduse, replace
+checking freduse consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. ssc install tsmktim, replace
+checking tsmktim consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. ssc install dmariano, replace
+checking dmariano consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. 
+. tsmktim time, start (1961q1)
+
+Time variable: time, 1961q1 to 1994q4
+        Delta: 1 quarter
+
+. tsset time
+
+Time variable: time, 1961q1 to 1994q4
+        Delta: 1 quarter
+
+. 
+. /************
+> *Part A
+> ************/
+. 
+. tsappend, add(20)
+
+. * Running an autoregressive AR(2) model
+. arima employ, ar(1/2)
+
+(setting optimization to BHHH)
+Iteration 0:   log likelihood = -244.48724  
+Iteration 1:   log likelihood = -243.21679  
+Iteration 2:   log likelihood = -242.91813  
+Iteration 3:   log likelihood = -242.81405  
+Iteration 4:   log likelihood = -242.79424  
+(switching optimization to BFGS)
+Iteration 5:   log likelihood = -242.78857  
+Iteration 6:   log likelihood = -242.78624  
+Iteration 7:   log likelihood = -242.78594  
+Iteration 8:   log likelihood =  -242.7859  
+Iteration 9:   log likelihood =  -242.7859  
+
+ARIMA regression
+
+Sample: 1961q1 thru 1994q4                      Number of obs     =        136
+                                                Wald chi2(2)      =    4550.88
+Log likelihood = -242.7859                      Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+             |                 OPG
+      employ | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+employ       |
+       _cons |   97.47719   3.734614    26.10   0.000     90.15748    104.7969
+-------------+----------------------------------------------------------------
+ARMA         |
+          ar |
+         L1. |   1.450483   .0627142    23.13   0.000     1.327565      1.5734
+         L2. |  -.4761836   .0626007    -7.61   0.000    -.5988787   -.3534885
+-------------+----------------------------------------------------------------
+      /sigma |   1.421886   .0527566    26.95   0.000     1.318485    1.525287
+------------------------------------------------------------------------------
+Note: The test of the variance against zero is one sided, and the two-sided
+      confidence interval is truncated at zero.
+
+. est store r1
+
+. predict emp_hat1, y dynamic(tq(1995q1))
+
+. label variable emp_hat1 "AR2for"
+
+. 
+. /************
+> *Part B
+> ************/
+. * Running a moving average MA(8) model
+. arima employ, ma(1/8)
+
+(setting optimization to BHHH)
+Iteration 0:   log likelihood = -386.22024  
+Iteration 1:   log likelihood = -333.71785  
+Iteration 2:   log likelihood = -294.37534  
+Iteration 3:   log likelihood = -270.08916  
+Iteration 4:   log likelihood = -257.11406  
+(switching optimization to BFGS)
+Iteration 5:   log likelihood =  -252.9307  
+Iteration 6:   log likelihood = -252.36588  
+Iteration 7:   log likelihood = -251.85064  
+Iteration 8:   log likelihood = -251.64525  
+Iteration 9:   log likelihood = -251.58154  
+Iteration 10:  log likelihood = -251.57261  
+Iteration 11:  log likelihood = -251.56985  
+Iteration 12:  log likelihood = -251.56955  
+Iteration 13:  log likelihood = -251.56948  
+Iteration 14:  log likelihood = -251.56948  
+
+ARIMA regression
+
+Sample: 1961q1 thru 1994q4                      Number of obs     =        136
+                                                Wald chi2(8)      =     629.71
+Log likelihood = -251.5695                      Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+             |                 OPG
+      employ | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+employ       |
+       _cons |   99.66108    1.49679    66.58   0.000     96.72743    102.5947
+-------------+----------------------------------------------------------------
+ARMA         |
+          ma |
+         L1. |   1.537487   .0660621    23.27   0.000     1.408007    1.666966
+         L2. |   1.866772     .13494    13.83   0.000     1.602295     2.13125
+         L3. |    1.96121   .2064062     9.50   0.000     1.556661    2.365759
+         L4. |   1.885833   .2370462     7.96   0.000     1.421231    2.350435
+         L5. |   1.585259    .225001     7.05   0.000     1.144265    2.026253
+         L6. |   1.154318   .2018309     5.72   0.000     .7587372      1.5499
+         L7. |   .5986673   .1620652     3.69   0.000     .2810253    .9163093
+         L8. |   .1862106   .0852037     2.19   0.029     .0192144    .3532068
+-------------+----------------------------------------------------------------
+      /sigma |   1.514368   .0720313    21.02   0.000     1.373189    1.655547
+------------------------------------------------------------------------------
+Note: The test of the variance against zero is one sided, and the two-sided
+      confidence interval is truncated at zero.
+
+. est store r2
+
+. predict emp_hat2, y dynamic(tq(1995q1))
+
+. label variable emp_hat2 "MA8for"
+
+. 
+. twoway (line emp_hat1 time) (line emp_hat2 time) if time >= tq(1995q1) & time 
+> <= tq(1999q4), xtitle("Time") ytitle("Canadian Employment") title("Forcasts of
+>  Canadian Employment") name(q1partb)
+
+. 
+. /************
+> *Part C
+> ************/
+. * Running an ARIMA(3,1) model
+. arima employ, ar(1/3) ma(1)
+
+(setting optimization to BHHH)
+Iteration 0:   log likelihood = -245.32937  
+Iteration 1:   log likelihood = -243.08974  
+Iteration 2:   log likelihood = -242.63055  
+Iteration 3:   log likelihood =  -242.2782  
+Iteration 4:   log likelihood = -242.15063  
+(switching optimization to BFGS)
+Iteration 5:   log likelihood = -242.09194  
+Iteration 6:   log likelihood =  -242.0204  
+Iteration 7:   log likelihood = -242.01156  
+Iteration 8:   log likelihood = -242.00956  
+Iteration 9:   log likelihood = -242.00937  
+Iteration 10:  log likelihood = -242.00935  
+
+ARIMA regression
+
+Sample: 1961q1 thru 1994q4                      Number of obs     =        136
+                                                Wald chi2(4)      =   62554.50
+Log likelihood = -242.0093                      Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+             |                 OPG
+      employ | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+employ       |
+       _cons |   99.05262   2.878619    34.41   0.000     93.41063    104.6946
+-------------+----------------------------------------------------------------
+ARMA         |
+          ar |
+         L1. |   2.190499   .3439473     6.37   0.000     1.516374    2.864623
+         L2. |  -1.497661   .5425449    -2.76   0.006     -2.56103   -.4342925
+         L3. |   .2984629   .2103899     1.42   0.156    -.1138937    .7108195
+             |
+          ma |
+         L1. |  -.7810995    .320484    -2.44   0.015    -1.409236   -.1529625
+-------------+----------------------------------------------------------------
+      /sigma |   1.413838   .0548553    25.77   0.000     1.306324    1.521353
+------------------------------------------------------------------------------
+Note: The test of the variance against zero is one sided, and the two-sided
+      confidence interval is truncated at zero.
+
+. est store r3
+
+. predict emp_hat3, y dynamic(tq(1995q1))
+
+. predict emp_hat3_mse, mse dynamic(tq(1995q1))
+
+. label variable emp_hat3_mse "ARMA31forMSE"
+
+. label variable emp_hat3 "ARMA31for"
+
+. 
+. scalar z = 1.96
+
+. gen ubound = emp_hat3 + z*sqrt(emp_hat3_mse)
+
+. gen lbound = emp_hat3 - z*sqrt(emp_hat3_mse)
+
+. 
+. twoway (line emp_hat3 time, lpattern(solid)) (line ubound time, lpattern(dash)
+> ) (line lbound time, lpattern(dash)) if time >= tq(1995q1) & time <= tq(1999q4
+> ), name(q1partc) xtitle("Time") ytitle("Canadian Employment") title("Forcasts 
+> of Canadian Employment")
+
+. 
+. /************
+> *Part D
+> ************/
+. * Displaying AIC and BIC values to decide which model is best for forecasting
+. est stats _all
+
+Akaike's information criterion and Bayesian information criterion
+
+-----------------------------------------------------------------------------
+       Model |          N   ll(null)  ll(model)      df        AIC        BIC
+-------------+---------------------------------------------------------------
+          r1 |        136          .  -242.7859       4   493.5718   505.2224
+          r2 |        136          .  -251.5695      10    523.139   552.2655
+          r3 |        136          .  -242.0093       6   496.0187   513.4946
+-----------------------------------------------------------------------------
+Note: BIC uses N = number of observations. See [R] BIC note.
+
+. 
+. 
+. *Q2
+. clear all
+
+. 
+. //Import excel file
+. import excel using "`path'\liquor.xlsx", first cellrange(A1:A337) clear
+(1 var, 336 obs)
+
+. 
+. ssc install freduse, replace
+checking freduse consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. ssc install tsmktim
+checking tsmktim consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. 
+. tsmktim time, start (1967m1)
+
+Time variable: time, 1967m1 to 1994m12
+        Delta: 1 month
+
+. tsset time
+
+Time variable: time, 1967m1 to 1994m12
+        Delta: 1 month
+
+. 
+. /************
+> *Part A
+> ************/
+. 
+. //Generating monthly indicator variables
+. gen m = month(dofm(time))
+
+. gen m1 = (m==1)
+
+. gen m2 = (m==2)
+
+. gen m3 = (m==3)
+
+. gen m4 = (m==4)
+
+. gen m5 = (m==5)
+
+. gen m6 = (m==6)
+
+. gen m7 = (m==7)
+
+. gen m8 = (m==8)
+
+. gen m9 = (m==9)
+
+. gen m10 = (m==10)
+
+. gen m11 = (m==11)
+
+. gen m12 = (m==12)
+
+. 
+. * Linear regression using intercept, time index, and 11 monthly seasonal indic
+> ator variables as regressors and then obtaining one-step ahead forecasts for t
+> he last year
+. reg liquor time m1-m11
+
+      Source |       SS           df       MS      Number of obs   =       336
+-------------+----------------------------------   F(12, 323)      =    465.04
+       Model |  71840680.5        12  5986723.38   Prob > F        =    0.0000
+    Residual |  4158200.52       323  12873.6858   R-squared       =    0.9453
+-------------+----------------------------------   Adj R-squared   =    0.9433
+       Total |    75998881       335  226862.331   Root MSE        =    113.46
+
+------------------------------------------------------------------------------
+      liquor | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        time |   4.394609   .0638573    68.82   0.000     4.268981    4.520238
+          m1 |  -643.9093    30.3322   -21.23   0.000    -703.5829   -584.2357
+          m2 |  -705.8039   30.33079   -23.27   0.000    -765.4747   -646.1331
+          m3 |  -607.1628   30.32951   -20.02   0.000    -666.8311   -547.4945
+          m4 |  -603.4146   30.32837   -19.90   0.000    -663.0806   -543.7485
+          m5 |  -520.6306   30.32736   -17.17   0.000    -580.2947   -460.9665
+          m6 |  -512.6681   30.32649   -16.90   0.000    -572.3304   -453.0057
+          m7 |  -451.7055   30.32575   -14.90   0.000    -511.3664   -392.0446
+          m8 |  -491.2787   30.32514   -16.20   0.000    -550.9384    -431.619
+          m9 |   -570.459   30.32467   -18.81   0.000    -630.1178   -510.8002
+         m10 |  -545.3536   30.32434   -17.98   0.000    -605.0118   -485.6955
+         m11 |  -507.3554   30.32413   -16.73   0.000    -567.0131   -447.6976
+       _cons |   709.6211   27.00196    26.28   0.000     656.4992     762.743
+------------------------------------------------------------------------------
+
+. est store r1
+
+. predict for1 if time > tm(1993m12)
+(option xb assumed; fitted values)
+(324 missing values generated)
+
+. label variable for1 "for1"
+
+. 
+. /************
+> *Part B
+> ************/
+. 
+. gen int1 = m1*time
+
+. gen int2 = m2*time
+
+. gen int3 = m3*time
+
+. gen int4 = m4*time
+
+. gen int5 = m5*time
+
+. gen int6 = m6*time
+
+. gen int7 = m7*time
+
+. gen int8 = m8*time
+
+. gen int9 = m9*time
+
+. gen int10 = m10*time
+
+. gen int11 = m11*time
+
+. 
+. * Adding in interactions between monthly seasonal indicators and time
+. reg liquor time m1-m11 int*
+
+      Source |       SS           df       MS      Number of obs   =       336
+-------------+----------------------------------   F(23, 312)      =    292.02
+       Model |  72625172.6        23   3157616.2   Prob > F        =    0.0000
+    Residual |   3373708.4       312   10813.168   R-squared       =    0.9556
+-------------+----------------------------------   Adj R-squared   =    0.9523
+       Total |    75998881       335  226862.331   Root MSE        =    103.99
+
+------------------------------------------------------------------------------
+      liquor | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        time |   5.818806   .2027337    28.70   0.000     5.419908    6.217704
+          m1 |  -157.2873   77.29367    -2.03   0.043    -309.3701   -5.204579
+          m2 |  -182.1892   77.42464    -2.35   0.019    -334.5297   -29.84878
+          m3 |  -174.5074   77.55591    -2.25   0.025    -327.1061   -21.90867
+          m4 |  -192.1718   77.68749    -2.47   0.014    -345.0294   -39.31414
+          m5 |  -164.8701   77.81938    -2.12   0.035    -317.9872   -11.75294
+          m6 |  -163.7262   77.95157    -2.10   0.036    -317.1034   -10.34893
+          m7 |   -171.096   78.08406    -2.19   0.029     -324.734    -17.4581
+          m8 |  -159.0384   78.21686    -2.03   0.043    -312.9376   -5.139141
+          m9 |  -163.5795   78.34995    -2.09   0.038    -317.7406    -9.41843
+         m10 |  -141.0815   78.48335    -1.80   0.073     -295.505    13.34209
+         m11 |  -111.5915   78.61704    -1.42   0.157    -266.2781    43.09513
+        int1 |  -1.914454   .2867088    -6.68   0.000    -2.478582   -1.350327
+        int2 |  -2.062238   .2867088    -7.19   0.000    -2.626365   -1.498111
+        int3 |  -1.692894   .2867088    -5.90   0.000    -2.257021   -1.128766
+        int4 |   -1.60582   .2867088    -5.60   0.000    -2.169947   -1.041693
+        int5 |  -1.383165   .2867088    -4.82   0.000    -1.947292   -.8190374
+        int6 |  -1.356162   .2867088    -4.73   0.000    -1.920289   -.7920351
+        int7 |  -1.085272   .2867088    -3.79   0.000    -1.649399   -.5211447
+        int8 |  -1.290686   .2867088    -4.50   0.000    -1.854813   -.7265589
+        int9 |  -1.585067   .2867088    -5.53   0.000    -2.149194   -1.020939
+       int10 |  -1.574211   .2867088    -5.49   0.000    -2.138338   -1.010084
+       int11 |   -1.54039   .2867088    -5.37   0.000    -2.104517   -.9762624
+       _cons |   343.6026   55.68538     6.17   0.000     234.0362     453.169
+------------------------------------------------------------------------------
+
+. est store r2
+
+. predict for2 if time > tm(1993m12)
+(option xb assumed; fitted values)
+(324 missing values generated)
+
+. label variable for2 "for2"
+
+. 
+. est stats _all
+
+Akaike's information criterion and Bayesian information criterion
+
+-----------------------------------------------------------------------------
+       Model |          N   ll(null)  ll(model)      df        AIC        BIC
+-------------+---------------------------------------------------------------
+          r1 |        336  -2548.055  -2059.908      13   4145.817   4195.439
+          r2 |        336  -2548.055  -2024.785      24   4097.569    4189.18
+-----------------------------------------------------------------------------
+Note: BIC uses N = number of observations. See [R] BIC note.
+
+. 
+. /************
+> *Part C
+> ************/
+. * Seasonal differenced arima model
+. arima DS12.liquor m1-m11 L12.liquor, noconstant
+
+(setting optimization to BHHH)
+Iteration 0:   log likelihood = -1815.8187  
+Iteration 1:   log likelihood = -1815.8187  
+
+ARIMA regression
+
+Sample: 1968m2 thru 1994m12                     Number of obs     =        323
+                                                Wald chi2(12)     =       6.72
+Log likelihood = -1815.819                      Prob > chi2       =     0.8753
+
+------------------------------------------------------------------------------
+             |                 OPG
+ DS12.liquor | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+liquor       |
+          m1 |  -22.57047   9.484896    -2.38   0.017    -41.16053   -3.980419
+          m2 |  -2.680137   20.35445    -0.13   0.895    -42.57413    37.21386
+          m3 |   3.999852   17.85796     0.22   0.823    -31.00111    39.00082
+          m4 |   .2126391   16.92567     0.01   0.990    -32.96107    33.38635
+          m5 |  -.2768023   19.72816    -0.01   0.989    -38.94329    38.38968
+          m6 |  -1.330046    15.7289    -0.08   0.933    -32.15812    29.49803
+          m7 |   2.843358    23.3973     0.12   0.903    -43.01451    48.70123
+          m8 |  -6.187161   15.80219    -0.39   0.695    -37.15888    24.78455
+          m9 |  -3.268931   13.35394    -0.24   0.807    -29.44217    22.90431
+         m10 |  -1.755575   16.10821    -0.11   0.913    -33.32708    29.81594
+         m11 |  -1.998262   15.59257    -0.13   0.898    -32.55913    28.56261
+             |
+      liquor |
+        L12. |   .0013548   .0031109     0.44   0.663    -.0047425    .0074521
+-------------+----------------------------------------------------------------
+      /sigma |   66.87273   1.467184    45.58   0.000      63.9971    69.74836
+------------------------------------------------------------------------------
+Note: The test of the variance against zero is one sided, and the two-sided
+      confidence interval is truncated at zero.
+
+. predict for3 if time > tm(1993m12), y
+(324 missing values generated)
+
+. predict for3_liq_res, residuals
+(13 missing values generated)
+
+. label variable for3 "for3"
+
+. 
+. order liquor for1 for2 for3
+
+. 
+. twoway (line for1 time if time > tm(1993m12), lcolor(black)) || (line for2 tim
+> e if time > tm(1993m12), lcolor(blue)) || (line for3 time if time > tm(1993m12
+> ), lcolor(red)), name(q2partc) xtitle("Time") ytitle("Liquor Sales") title("Fo
+> recasts of Liquor Sales")
+
+. 
+. /************
+> *Part D
+> ************/
+. * Different method to perform a Seasonal ARIMA Model
+. arima liquor, arima(2,0,0) sarima(2,1,0,12)
+
+(setting optimization to BHHH)
+Iteration 0:   log likelihood = -1774.1008  
+Iteration 1:   log likelihood = -1753.3507  
+Iteration 2:   log likelihood = -1748.8861  
+Iteration 3:   log likelihood = -1747.4342  
+Iteration 4:   log likelihood = -1746.7528  
+(switching optimization to BFGS)
+Iteration 5:   log likelihood = -1746.3702  
+Iteration 6:   log likelihood = -1745.8304  
+Iteration 7:   log likelihood = -1745.7759  
+Iteration 8:   log likelihood = -1745.7666  
+Iteration 9:   log likelihood = -1745.7665  
+
+ARIMA regression
+
+Sample: 1968m1 thru 1994m12                     Number of obs     =        324
+                                                Wald chi2(4)      =     733.91
+Log likelihood = -1745.766                      Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+             |                 OPG
+  S12.liquor | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+liquor       |
+       _cons |   44.15344   15.36664     2.87   0.004     14.03537    74.27151
+-------------+----------------------------------------------------------------
+ARMA         |
+          ar |
+         L1. |   .4377568   .0490093     8.93   0.000     .3417004    .5338132
+         L2. |   .4098291   .0444606     9.22   0.000      .322688    .4969703
+-------------+----------------------------------------------------------------
+ARMA12       |
+          ar |
+         L1. |   -.423566   .0522278    -8.11   0.000    -.5259307   -.3212013
+         L2. |  -.0402142   .0666195    -0.60   0.546     -.170786    .0903575
+-------------+----------------------------------------------------------------
+      /sigma |   52.68861   1.426194    36.94   0.000     49.89332     55.4839
+------------------------------------------------------------------------------
+Note: The test of the variance against zero is one sided, and the two-sided
+      confidence interval is truncated at zero.
+
+. predict arima_liq_res, residuals
+(12 missing values generated)
+
+. 
+. /************
+> *Part E
+> ************/
+. * Autocorrelation plots for the forecast residuals using 40 lags
+. ac for3_liq_res, lags(40) name(q4parte_c)
+
+. ac arima_liq_res, lags(40) name(q4parte_d)
+
+. 
+. 
+. *Q3
+. clear all
+
+. 
+. ssc install freduse, replace
+checking freduse consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. ssc install dmariano, replace
+checking dmariano consistency and verifying not already installed...
+all files already exist and are up to date.
+
+. import fred VIXCLS WILL5000PRFC, clear
+
+Summary
+--------------------------------------------------------------------------------
+Series ID                    Nobs    Date range                Frequency
+--------------------------------------------------------------------------------
+VIXCLS                       8321    1990-01-02 to 2023-01-05  Daily, Close
+WILL5000PRFC                 10974   1970-12-31 to 2023-01-05  Daily, Close
+--------------------------------------------------------------------------------
+# of series imported: 2
+   highest frequency: Daily
+    lowest frequency: Daily
+
+. //freduse WILL5000PRFC VIXCLS
+. rename WILL5000PRFC w
+
+. rename VIXCLS v
+
+. 
+. gen time = _n
+
+. tsset time
+
+Time variable: time, 1 to 13571
+        Delta: 1 unit
+
+. 
+. /************
+> *Part A
+> ************/
+. * Computing daily percentage returns on the index
+. gen w_returns = 100*((w/L.w) -1)
+(3,078 missing values generated)
+
+. 
+. drop if w_returns ==.
+(3,078 observations deleted)
+
+. drop time
+
+. 
+. gen time = _n
+
+. tsset time
+
+Time variable: time, 1 to 10493
+        Delta: 1 unit
+
+. 
+. drop if daten > td(31dec2020)
+(489 observations deleted)
+
+. 
+. sum w_returns
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+   w_returns |     10,004    .0415175    1.097231  -17.88461   11.40111
+
+. 
+. /************
+> *Part B
+> ************/
+. 
+. gen sq_w_returns = (w_returns)^2
+
+. * Creating exponential smoothing forecast of the squared daily returns
+. tssmooth exponential x1=sq_w_returns
+
+computing optimal exponential  coefficient (0,1)
+
+optimal exponential coefficient =        0.1361
+sum-of-squared residuals        =     244128.95
+root mean squared error         =     4.9399528
+
+. 
+. reg sq_w_returns x1
+
+      Source |       SS           df       MS      Number of obs   =    10,004
+-------------+----------------------------------   F(1, 10002)     =   1934.59
+       Model |  46518.2715         1  46518.2715   Prob > F        =    0.0000
+    Residual |  240503.352    10,002  24.0455261   R-squared       =    0.1621
+-------------+----------------------------------   Adj R-squared   =    0.1620
+       Total |  287021.624    10,003  28.6935543   Root MSE        =    4.9036
+
+------------------------------------------------------------------------------
+sq_w_returns | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          x1 |   .7817532   .0177736    43.98   0.000     .7469134     .816593
+       _cons |   .2627457   .0535073     4.91   0.000     .1578607    .3676307
+------------------------------------------------------------------------------
+
+. predict for1
+(option xb assumed; fitted values)
+
+. 
+. /************
+> *Part C
+> ************/
+. 
+. gen x2 = (L.v/12)^2
+(2,468 missing values generated)
+
+. 
+. reg sq_w_returns x2
+
+      Source |       SS           df       MS      Number of obs   =     7,536
+-------------+----------------------------------   F(1, 7534)      =   2782.06
+       Model |  45520.7383         1  45520.7383   Prob > F        =    0.0000
+    Residual |  123273.304     7,534  16.3622649   R-squared       =    0.2697
+-------------+----------------------------------   Adj R-squared   =    0.2696
+       Total |  168794.042     7,535  22.4013327   Root MSE        =     4.045
+
+------------------------------------------------------------------------------
+sq_w_returns | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          x2 |   .7247194     .01374    52.75   0.000     .6977852    .7516537
+       _cons |  -.9479431   .0630708   -15.03   0.000    -1.071579   -.8243067
+------------------------------------------------------------------------------
+
+. predict for2
+(option xb assumed; fitted values)
+(2,468 missing values generated)
+
+. 
+. /************
+> *Part D
+> ************/
+. * Conducting a test of equal predictive accuracy for for1 and for2
+. * ANSWER: Since the p-value is greater than 0.05 (0.4423 > 0.05), we fail to r
+> eject the null hypothesis. This means that the two models are equivalent from 
+> a forecasting perspective.
+. dmariano sq_w_returns for1 for2, maxlag(10) kernel(bartlett)
+
+Diebold-Mariano forecast comparison test for actual : sq_w_returns
+Competing forecasts:  for1 versus for2
+Criterion: MSE over 7536 observations
+Maxlag = 10   Kernel : bartlett
+
+Series                 MSE
+______________________________
+for1                   16.75
+for2                   16.36
+Difference              .394
+
+By this criterion, for2 is the better forecast
+H0: Forecast accuracy is equal.
+S(1) =     .7674  p-value = 0.4428
+
+
+
+
+. 
+. /************
+> *Part E
+> ************/
+. * Conducting tests of forecast encompassing using for1 and for2
+. * ANSWER: The null hypothesis for these individual tests indicates that the fo
+> recasts for one model can encompass those for another model. However, we rejec
+> t the null hypothesis for both tests and conclude that neither forecast encomp
+> asses the other.
+. reg sq_w_returns for1 for2, noconstant
+
+      Source |       SS           df       MS      Number of obs   =     7,536
+-------------+----------------------------------   F(2, 7534)      =   1859.59
+       Model |  59956.9233         2  29978.4616   Prob > F        =    0.0000
+    Residual |  121455.935     7,534  16.1210426   R-squared       =    0.3305
+-------------+----------------------------------   Adj R-squared   =    0.3303
+       Total |  181412.858     7,536  24.0728315   Root MSE        =    4.0151
+
+------------------------------------------------------------------------------
+sq_w_returns | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        for1 |    .442881   .0417121    10.62   0.000     .3611137    .5246484
+        for2 |   .6374089   .0379936    16.78   0.000     .5629308    .7118869
+------------------------------------------------------------------------------
+
+. test (_b[for1]=1) (_b[for2]=0)
+
+ ( 1)  for1 = 1
+ ( 2)  for2 = 0
+
+       F(  2,  7534) =  148.46
+            Prob > F =    0.0000
+
+. test (_b[for1]=0) (_b[for2]=1)
+
+ ( 1)  for1 = 0
+ ( 2)  for2 = 1
+
+       F(  2,  7534) =   56.37
+            Prob > F =    0.0000
+
+. 
+. 
+. //close the log file    
+. log close
+      name:  <unnamed>
+       log:  G:\econ_6218_fore\ps3\economic_forecasting_ex1.log
+  log type:  text
+ closed on:   7 Jan 2023, 00:02:40
+--------------------------------------------------------------------------------
